@@ -1,8 +1,24 @@
-facebookAuth.py
-===============
+Facebook Authentication Browser for Python
+==========================================
 
 Creates a web browser using GTK+ and WebKit to authorize a desktop
 application in Facebook. It uses OAuth 2.0. Requires the Facebook's
-Application ID. The token is then saved to FB_TOKEN_FILE. 
+Application ID. The token is then saved to FB_TOKEN_FILE.
+
+Requires Python and PyGTK+.
 
 (C) 2011 Víctor R. Ruiz <rvr@linotipo.es>
+
+
+Howto
+-----
+This is an example application.
+
+import FacebookAuth
+# Creates the browser
+auth = FacebookAuth.Browser(app_key=FACEBOOK_APP_KEY, scope='offline_access,read_stream')
+# Launch browser window
+auth.authorize()
+# Token available?
+print "Token: %s" % (auth.token)
+
