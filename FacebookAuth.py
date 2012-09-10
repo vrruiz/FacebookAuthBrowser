@@ -4,23 +4,27 @@ import gtk
 import webkit
 import urllib
 import urlparse
+import sys
 
 FB_TOKEN_FILE = 'access_token.txt'
 
-class Browser:
+class Browser(object):
     """ Creates a web browser using GTK+ and WebKit to authorize a
         desktop application in Facebook. It uses OAuth 2.0.
         Requires the Facebook's Application ID. The token is then
         saved to FB_TOKEN_FILE.
     """
 
-    def __init__(self, app_key, scope='offline_access'):
+    def __init__(self, app_key, scope='offline_access', token_file=FB_TOKEN_FILE):
         """ Constructor. Creates the GTK+ app and adds the WebKit widget
             @param app_key Application key ID (Public).
 
             @param scope A string list of permissions to ask for. More at
             http://developers.facebook.com/docs/reference/api/permissions/
         """
+        self.debug = False
+        self.close_window = True
+        self.token_file = token_file
         self.token = ''
         self.token_expire = ''
         self.scope = scope
@@ -60,11 +64,19 @@ class Browser:
             self.token = params['access_token'][0]
             self.token_expire = params['expires_in'][0] # Should be equal to 0, don't expire
             # Save token to file
-            token_file = open(FB_TOKEN_FILE, 'w')
+            token_file = open(self.token_file, 'w')
             token_file.write(self.token)
             token_file.close()
-            print "Authentication done. Access token available at %s" % (FB_TOKEN_FILE)
+            if self.debug:
+                sys.stderr.write("Authentication done. Access token available at %s\n" % (self.token_file))
             gtk.main_quit() # Finish
+            if self.close_window:
+                try:
+                    self.window.destroy()
+                except RuntimeError:
+                    pass
+                
+            
 
     def _destroy_event_cb(self, widget):
         """ Callback for close window. Closes the application. """
@@ -77,7 +89,7 @@ class Browser:
 
 if (__name__ == '__main__'):
     # Creates the browser
-    browser = Browser(app_key='XXXXXXXXXXX', scope='offline_access,read_stream')
+    browser = Browser(app_key='XXXXXXXXXXX', scope='offline_access,read_stream', token_file=FB_TOKEN_FILE)
     # Launch browser window
     browser.authorize()
     # Token available?
